@@ -1,3 +1,14 @@
+// FIXME: Don't use terraform_remote_state to avoid implicit dependency.
+data "terraform_remote_state" "network" {
+  backend   = "gcs"
+  workspace = "network"
+
+  config = {
+    bucket = "kaito2-flat-pattern-dev"
+    prefix = "terraform"
+  }
+}
+
 resource "google_container_cluster" "primary" {
   name     = "terraform-sample"
   location = var.region
@@ -5,8 +16,8 @@ resource "google_container_cluster" "primary" {
   remove_default_node_pool = true
   initial_node_count       = 1
 
-  network    = google_compute_network.vpc.name
-  subnetwork = google_compute_subnetwork.subnet.name
+  network    = data.terraform_remote_state.network.outputs.vpc_name
+  subnetwork = data.terraform_remote_state.network.outputs.subnet_name
 
   master_auth {
     // Disable basic auth
@@ -22,7 +33,7 @@ resource "google_container_cluster" "primary" {
 resource "google_container_node_pool" "primary_nodes" {
   name       = "terraform-sample"
   location   = var.region
-  cluster    = google_container_cluster.primary
+  cluster    = google_container_cluster.primary.name
   node_count = 2
 
   node_config {
@@ -41,7 +52,7 @@ resource "google_container_node_pool" "primary_nodes" {
       var.project_id,
     ]
     metadata = {
-        disable-legacy-endpoints = "true"
+      disable-legacy-endpoints = "true"
     }
   }
 }
