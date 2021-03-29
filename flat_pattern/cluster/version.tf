@@ -7,7 +7,7 @@ terraform {
   }
 
   backend "gcs" {
-    prefix = "terrform"
+    prefix = "terraform"
     // TODO: 環境ごとにファイルを分割する
     bucket = "kaito2-flat-pattern-dev"
   }

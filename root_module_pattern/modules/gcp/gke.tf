@@ -16,8 +16,10 @@ resource "google_container_cluster" "primary" {
   remove_default_node_pool = true
   initial_node_count       = 1
 
-  network    = data.terraform_remote_state.network.outputs.vpc_name
-  subnetwork = data.terraform_remote_state.network.outputs.subnet_name
+  // network    = data.terraform_remote_state.network.outputs.vpc_name
+  // subnetwork = data.terraform_remote_state.network.outputs.subnet_name
+  network    = google_compute_network.vpc.name
+  subnetwork = google_compute_subnetwork.subnet.name
 
   master_auth {
     // Disable basic auth

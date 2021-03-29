@@ -1,14 +1,7 @@
 // TODO: Merge Modules
-module "cluster" {
-  source = "../../modules/cluster"
+module "gcp" {
+  source = "../../modules/gcp"
 
   project_id = "REPLACE_ME"
   region     = "asia-northeast1"
-}
-
-module "network" {
-  source = "../../modules/network"
-
-  project_id = "REPLACE_ME"
-  region = "asia-northeast1"
 }

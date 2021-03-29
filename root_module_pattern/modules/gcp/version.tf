@@ -8,3 +8,9 @@ terraform {
 
   required_version = "~> 0.14"
 }
+
+// FIXME: module 内に provider を定義するべきではない?
+provider "google" {
+  project = var.project_id
+  region  = var.region
+}
