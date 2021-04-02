@@ -6,7 +6,7 @@ terraform {
     }
   }
 
-  required_version = "~> 0.14"
+  required_version = "0.14.4"
 }
 
 // FIXME: module 内に provider を定義するべきではない?

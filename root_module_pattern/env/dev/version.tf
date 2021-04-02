@@ -6,5 +6,5 @@ terraform {
     bucket = "kaito2-flat-pattern-dev"
   }
 
-  required_version = "~> 0.14"
+  required_version = "0.14.4"
 }

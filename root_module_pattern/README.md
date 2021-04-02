@@ -49,3 +49,14 @@ $ terraform plan
 全部作り直しになってしまう…
 直接 `resource` として定義されるものと、 `moudle` 内の `resource` として定義されるものは別のものとして認識される。
 `terraform state mv` を地道に書くしかなさそう。
+
+## とりあえず apply してみる
+
+```
+$ cd root_module_pattern
+$ cd env/dev
+$ terraform init
+$ terraform workspace new root-module
+$ terraform workspace select root-module
+$ terraform plan --var-file=dev.tfvars
+```
