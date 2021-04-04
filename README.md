@@ -31,7 +31,6 @@ $ terraform apply --var-file=dev.tfvars
 ```
 
 続いて `cluster` ディレクトリを apply する。
-同じく `dev.tfvars` の値は置き換えておく。
 
 ```
 $ cd ../cluster
@@ -45,8 +44,6 @@ $ terraform apply --var-file=dev.tfvars
 ### `merged_pattern` ディレクトリに state を移行
 
 `flat_pattern` ディレクトリの中身を `merged_pattern` ディレクトリのようにリファクタリングしたとう状況を想定して、`flat_pttern` の terraform state を `merged_pattern` に移行する。
-
-こちらも `merged_pattern/merged/dev.tfvars` ファイルの `YOUR_GCP_PROJECT_ID` を書き換える。
 
 ```
 $ cd ../../merged_pattern/merged
@@ -71,8 +68,6 @@ $ terraform state pull > merged.tfstate
 
 ※ まとめる方法は [fujiwara/tfstate-merge](https://github.com/fujiwara/tfstate-merge) の使用を検討したが、 `0.14` に未対応のため、ひとまず手動で実施する。
 
-TODO: まとめる方法(e.g. `terraform_remote_state` への参照ををリソースの参照に変更する)
-
 ```
 # cluter の state を取得
 $ terraform workspace select cluster ../../flat_pattern/cluster
@@ -83,6 +78,7 @@ $ terraform workspace select network ../../flat_pattern/network
 $ terraform -chdir=../../flat_pattern/network state pull > tmp_network.tfstate
 
 # 手動で tmp_cluster.tfstate と tmp_network.tfstate の中身を merged.tfstate に移す
+# TODO: まとめる方法(e.g. `terraform_remote_state` への参照ををリソースの参照に変更する)
 ```
 
 Plan を試すために backend を local に切り替える。
@@ -96,9 +92,9 @@ terraform {
 }
 EOF
 
+$ terraform init
 $ terraform workspace new merged
 $ terraform workspace select merged
-$ terraform init -reconfigure
 ```
 
 ```
@@ -157,50 +153,7 @@ Releasing state lock. This may take a few moments...
 
 ### `root_module_pattern` ディレクトリに state を移行
 
-```
-$ cd ../..
-
-$ terraform -chdir=merged_pattern/merged state pull > merged_pattern/merged/merged.tfstate
-$ cat << EOF > merged_pattern/merged/override.tf
-terraform {
-  backend "local" {
-  }
-}
-EOF
-
-$ cat << EOF > root_module_pattern/env/dev/override.tf
-terraform {
-  backend "local" {
-  }
-}
-EOF
-
-$ cd root_module_pattern/env/dev
-$ terraform init
-```
-
-```
-$ terraform state mv -state=../../../merged_pattern/merged/merged.tfstate -state-out=.terraform/terraform.tfstate \
-  google_compute_network.vpc module.gcp.google_compute_network.vpc
-
-$ terraform state mv -state=../../../merged_pattern/merged/merged.tfstate -state-out=.terraform/terraform.tfstate \
-  google_compute_subnetwork.subnet module.gcp.google_compute_subnetwork.subnet
-
-$ terraform state mv -state=../../../merged_pattern/merged/merged.tfstate -state-out=.terraform/terraform.tfstate \
-  google_container_cluster.primary module.gcp.google_container_cluster.primary
-
-$ terraform state mv -state=../../../merged_pattern/merged/merged.tfstate -state-out=.terraform/terraform.tfstate \
-  google_container_node_pool.primary_nodes module.gcp.google_container_node_pool.primary_nodes
-```
-
-FIXME: Plan がぶっ壊れた。 `terraform state mv` ではなく、 `terraform ipmort` を使ったほうがいいかも知れない。
-
-```
-$ terraform plan -state=.terraform/terraform.tfstate
-
-Error: Failed to load state: Terraform 0.14.4 does not support state version 4, please update.
-```
-
+MEMO:
 `merged_pattern` を apply したところから再チャレンジ
 何故か backend に `local` を指定すると state のバージョンが `3` になってしまうので `gcs` に `root-module` workspace を作って作業する。
 TODO: state のバージョン問題は別途調査
@@ -209,6 +162,7 @@ TODO: state のバージョン問題は別途調査
 $ cd ../..
 
 $ terraform -chdir=merged_pattern/merged state pull > merged_pattern/merged/merged.tfstate
+# TODO: ローカルにする必要ある?
 $ cat << EOF > merged_pattern/merged/override.tf
 terraform {
   backend "local" {
@@ -220,7 +174,7 @@ $ cd root_module_pattern/env/dev
 $ terraform init
 $ terraform workspace new root-module
 $ terraform workspace select root-module
-$ terraform state pull > root-module.tfstae
+$ terraform state pull > root-module.tfstate
 $ cat << EOF > override.tf
 terraform {
   backend "local" {
@@ -228,14 +182,15 @@ terraform {
 }
 EOF
 
-$ terraform workspace new root-module
 $ terraform init -reconfigure
+$ terraform workspace new root-module
+$ terraform workspace select root-module
 
 # 動作確認 (すべて新規作成になるはず)
 $ terraform plan -state=root-module.tfstate
 ```
 
-mv していく
+mv していく。
 
 ```
 $ terraform state mv -state=../../../merged_pattern/merged/merged.tfstate -state-out=root-module.tfstate \
@@ -258,7 +213,7 @@ $ terraform plan -state=root-module.tfstate
 ```
 
 Remote に push する。
-TODO: 本番ではもうちょい慎重なフローにする
+TODO: 本番ではもうちょい慎重なフローにする。
 
 ```
 $ rm override.tf
@@ -269,7 +224,7 @@ $ terraform workspace select root-module
 $ terraform plan
 ```
 
-依存関係が残るので一応 apply しておく
+依存関係が残るので一応 apply しておく。
 
 ```
 $ terraform apply
