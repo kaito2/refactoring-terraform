@@ -1,6 +1,6 @@
 ## 実行手順
 
-`dev.tfvars` ファイルの `REPLACE_ME` を書き換える。
+`dev.tfvars` ファイルの `YOUR_GCP_PROJECT_ID` を書き換える。
 
 ```
 $ cd merged_pattern

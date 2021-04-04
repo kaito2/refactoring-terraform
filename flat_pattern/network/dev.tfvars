@@ -1,3 +1,3 @@
 // TODO: Replace
-project_id = "REPLACE_ME"
+project_id = "YOUR_GCP_PROJECT_ID"
 region = "asia-northeast1"

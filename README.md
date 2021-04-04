@@ -10,6 +10,8 @@
 
 ### 手順
 
+レポジトリ内の `YOUR_GCP_PROJECT_ID` はすべて自分の GCP Project ID に置き換えてすすめる。
+
 #### `flat_pattern` ディレクトリを apply する
 
 Remote state 用のバケットを作成する。
@@ -18,8 +20,6 @@ Remote state 用のバケットを作成する。
 $ cd flat_pattern
 $ bash ./scripts/create-tf-bucket.sh dev [YOUR_GCP_PROJECT_ID]
 ```
-
-`network` ディレクトリの `dev.tfvars` 内の `REPLACE_ME` を書き換えて、 apply する。
 
 ```
 $ cd network
@@ -46,7 +46,7 @@ $ terraform apply --var-file=dev.tfvars
 
 `flat_pattern` ディレクトリの中身を `merged_pattern` ディレクトリのようにリファクタリングしたとう状況を想定して、`flat_pttern` の terraform state を `merged_pattern` に移行する。
 
-こちらも `merged_pattern/merged/dev.tfvars` ファイルの `REPLACE_ME` を書き換える。
+こちらも `merged_pattern/merged/dev.tfvars` ファイルの `YOUR_GCP_PROJECT_ID` を書き換える。
 
 ```
 $ cd ../../merged_pattern/merged
